@@ -1,0 +1,17 @@
+### Tasks list to install k9s
+
+- name: Download k9s package
+  get_url:
+    url: https://github.com/derailed/k9s/releases/download/{{ k9s_version }}/k9s_Linux_x86_64.tar.gz
+    dest: '/tmp'
+
+- name: Unpack k9s archive
+  unarchive:
+    src: '/tmp/k9s_Linux_x86_64.tar.gz'
+    dest: '/usr/local/bin/'
+  become: true
+
+- name: Make .kube directory if not exist
+  file:
+    path: '$HOME/.kube'
+    state: directory

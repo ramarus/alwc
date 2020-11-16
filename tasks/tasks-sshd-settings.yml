@@ -1,0 +1,115 @@
+---
+### Config for setup & configure SSH-server
+#become: true
+
+  - name: Install latest version OpenSSH-server.
+    apt: name=openssh-server state=latest
+    notify: Restart sshd
+
+  - name: Add keys, cypher & MAC exchange 
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^KexAlgorithms'
+      line: 'KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256'
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^Ciphers'
+      line: 'Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr'
+    notify: Restart sshd
+        
+  - name: Enable Protocol 2 & most secure algorythms.
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^Protocol 2'
+      line: 'Protocol 2' 
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^HostKey /etc/ssh/ssh_host_ed25519_key'
+      line: 'HostKey /etc/ssh/ssh_host_ed25519_key'
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^HostKey /etc/ssh/ssh_host_rsa_key'
+      line: 'HostKey /etc/ssh/ssh_host_rsa_key'   
+    notify: Restart sshd
+
+  - name: Disable unsecure algorythms
+    lineinfile: 
+      path: /etc/ssh/sshd_config 
+      regexp: '^HostKey /etc/ssh/ssh_host_ecdsa_key' 
+      state: absent
+    notify: Restart sshd
+
+  - lineinfile: 
+      path: /etc/ssh/sshd_config 
+      regexp: '^HostKey /etc/ssh/ssh_host_dsa_key'
+      state: absent
+    notify: Restart sshd
+    
+  - name: Delete unsecure key-files, added by system on setup
+    file:
+      path: /etc/ssh/ssh_host_ecdsa_key.pub
+      state: absent
+    notify: Restart sshd
+
+  - file:
+      path: /etc/ssh/ssh_host_ecdsa_key
+      state: absent
+    notify: Restart sshd
+
+  - file:
+      path: /etc/ssh/ssh_host_dsa_key.pub
+      state: absent
+    notify: Restart sshd
+
+  - file:
+      path: /etc/ssh/ssh_host_dsa_key
+      state: absent
+    notify: Restart sshd
+  
+  - name: Disable login with password. Enable login with publickey.
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?AuthenticationMethods'
+      line: 'AuthenticationMethods publickey'
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?PasswordAuthentication'
+      line: 'PasswordAuthentication no'
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?ChallengeResponseAuthentication'
+      line: 'ChallengeResponseAuthentication no'
+    notify: Restart sshd
+
+  - lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#?PubkeyAuthentication'
+      line: 'PubkeyAuthentication yes'   
+    notify: Restart sshd
+      
+  - name: Set LogLevel to VERBOSE.
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^LogLevel'
+      line: 'LogLevel VERBOSE'
+    notify: Restart sshd
+
+  - name: Disable Root Login.
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PermitRootLogin'
+      line: 'PermitRootLogin No'
+    notify: Restart sshd   
+
+  - debug:
+      msg: "SSH server configured! Don't forget import your ssh-keys!"

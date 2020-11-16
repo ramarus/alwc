@@ -1,0 +1,32 @@
+### Disable SWAP. Do this if you have over 8Gb RAM or use Kubernetes
+
+- name: Turn-off SWAP (1/2)
+  shell: |
+    swapoff -a
+  tags: [swap]
+  when: swap_state == 'off'
+
+- name: Disable SWAP in fstab (2/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+  when: swap_state == 'off'
+  notify:
+    - Reboot server
+
+### Reenable SWAP if you need it. Not recomended if you have over 8Gb RAM or you use Kubernetes
+
+- name: Reenable SWAP in fstab (1/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^# (.+?\sswap\s+sw\s+.*)$'
+    replace: '\1'
+  when: swap_state == 'on'
+  notify:
+    - Reboot server
+
+- name: Enable SWAP (2/2)
+  shell: |
+    swapon -a
+  when: swap_state == 'on'

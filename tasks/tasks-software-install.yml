@@ -1,0 +1,47 @@
+### Tasks list for software installation 
+
+### Update APT repositories and cache
+- name: APT update cache
+  apt: update_cache=yes
+  become: true
+
+### Install required packages
+- name: Install required packages
+  apt: 
+    name: ['mc',
+           'git',
+           'docker-ce',
+           'tmux',
+           'rsync',
+           'golang-go',
+           'vim',
+           'qemu-kvm',
+           'python3-pip',
+           'curl',
+           'apt-transport-https',
+           'ca-certificates',
+           'virtualenv',
+           'python3-setuptools'
+          ]
+    state: latest
+  become: true
+
+### Upgrade all installed packages
+- name: APT upgrade installed packages
+  apt: upgrade=yes
+  become: true
+
+### Install required Python modules
+- name: Install required Python modules
+  pip:
+    name: ['docker',
+           'yamllint',
+           'ansible-lint'
+          ]
+  become: true
+
+### Clean system by removing unneeded packages
+- name: APT remove unused dependency packages
+  apt: autoremove=yes
+  become: true
+
