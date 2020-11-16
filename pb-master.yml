@@ -1,0 +1,40 @@
+---
+- hosts: all
+  vars_files:
+  vars:
+# Set your username
+    - username: 'linux'
+# Set your user password (for using sudo)
+    - ansible_become_password: '123123123'
+# Set the swap_state. Use 'off' to disable swap (Recomended if you have over 8Gb RAM or use Kubernetes). Set state to 'on' if you need swap.
+    - swap_state: 'off'
+# Set version of k3s (https://github.com/rancher/k3s/releases)
+    - k3s_version: 'v1.18.12+k3s1'
+# Set version of k9s (https://github.com/derailed/k9s/releases)
+    - k9s_version: 'v0.23.10'
+
+
+  tasks:
+
+### Tasks for software installation
+    - import_tasks: tasks/tasks-software-install.yml
+
+### Task to disable or enable swap
+    - import_tasks: tasks/tasks-swap-settings.yml
+
+### Configure OpenSSH-server
+    - import_tasks: tasks/tasks-sshd-settings.yml
+
+### Configure temp cache-dirs for browsers in RAM to speed-up them
+    - import_tasks: tasks/tasks-zram.yml
+
+### Install k3s
+    - import_tasks: tasks/tasks-k3s-install.yml
+
+### Install k9s
+    - import_tasks: tasks/tasks-k9s-install.yml
+
+
+
+  handlers:
+    - import_tasks: handlers/handlers.yml
