@@ -1,0 +1,31 @@
+### Tasks list to set ZRAM and make symlinks to browsers cache to allocate them in RAM
+
+- name: Copy zram.sh
+  template:
+    src: ./zram/zram.sh.j2
+    dest: /root/
+    mode: '0775'
+  become: true
+
+- name: Copy rc.local
+  template:
+    src: ./zram/rc.local.j2
+    dest: /etc/
+    mode: '0775'
+  become: true
+
+- name: Gather packages facts
+  package_facts:
+    manager: 'auto'
+
+- name: Make symlink for Google Chrome
+  command: 'ln -s $HOME/.cache/google-chrome /tmp/zram/cache/google-chrome'
+  when: '"google-chrome" in ansible_facts.packages'
+
+- name: Create symlink for Opera
+  command: 'ln -s $HOME/.opera /tmp/zram/cache/opera'
+  when: '"opera" in ansible_facts.packages'
+
+- name: Create symlink for Firefox
+  command: 'ln -s $HOME/.cache/mozilla /tmp/zram/cache/mozilla'
+  when: '"firefox" in ansible_facts.packages'
