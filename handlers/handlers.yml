@@ -1,0 +1,9 @@
+#  handlers:  
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+- name: Restart server
+  reboot:
+    reboot_timeout: 600
